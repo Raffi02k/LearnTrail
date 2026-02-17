@@ -2,12 +2,17 @@ from app.db import SessionLocal, engine
 from app import models
 from app.auth import security
 
-def seed_data():
-    db = SessionLocal()
-    
+def seed_data(db=None):
+    owns_session = False
+    if db is None:
+        db = SessionLocal()
+        owns_session = True
+
     # Check if data exists
     if db.query(models.Course).count() > 0:
         print("Data already exists.")
+        if owns_session:
+            db.close()
         return
 
     print("Seeding data...")
@@ -93,7 +98,8 @@ Create a variable called `meal` and assign it the string "Breakfast".
 
     db.commit()
     print("Seeding complete.")
-    db.close()
+    if owns_session:
+        db.close()
 
 if __name__ == "__main__":
     models.Base.metadata.create_all(bind=engine)

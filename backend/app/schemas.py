@@ -38,6 +38,9 @@ class ExerciseBase(BaseModel):
 class Exercise(ExerciseBase):
     id: int
     order: int
+
+    is_completed: bool = False
+    is_locked: bool = False
     
     class Config:
         from_attributes = True
@@ -77,6 +80,11 @@ class Course(CourseBase):
     id: int
     slug: str
     modules: List[Module] = []
+
+    # Catalog metadata
+    language: str
+    subject: str
+    icon: str
 
     class Config:
         from_attributes = True

@@ -41,7 +41,13 @@ class Course(Base):
     description = Column(Text, nullable=True)
     level = Column(String, default="Beginner")
     slug = Column(String, unique=True, index=True)
+
+    # Catalog metadata
+    language = Column(String, default="Python")
+    subject = Column(String, default="General")
+    icon = Column(String, default="📘")
     
+
     modules = relationship("Module", back_populates="course", order_by="Module.order")
 
 class Module(Base):

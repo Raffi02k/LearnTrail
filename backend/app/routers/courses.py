@@ -51,11 +51,7 @@ def get_course_detail(slug: str, db: Session = Depends(get_db), current_user: mo
     course = db.query(models.Course).filter(models.Course.slug == slug).first()
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
-        
-    # We might want to inject 'completed' status into lessons here
-    # But for MVP, the frontend can query 'progress' separately or we rely on the client to Map it
-    # Let's try to inject simple 'is_completed' on lessons
-    
+            
     # Get all completed exercises for this user
     completed_ex_ids = db.query(models.UserExerciseProgress.exercise_id).filter(
         models.UserExerciseProgress.user_id == current_user.id,
@@ -70,14 +66,25 @@ def get_course_detail(slug: str, db: Session = Depends(get_db), current_user: mo
             if not lesson.exercises:
                 lesson.is_completed = False
                 continue
-                
-            all_done = True
-            for ex in lesson.exercises:
-                if ex.id not in completed_ids_set:
-                    all_done = False
-                    break
-            lesson.is_completed = all_done
-            
+
+            # 1) completion per exercise
+            for exercise in lesson.exercises:
+                exercise.is_completed = (exercise.id in completed_ids_set)
+
+            # 2) sequential locking per lesson
+            # rule:
+            # - first exercise unlocked
+            # - exercise N locked if exercise N-1 not completed
+            previous_exercise_completed = True # so first becomes unlocked
+            for i, exercise in enumerate(lesson.exercises):
+                if i == 0:
+                    exercise.is_locked = False
+                else:
+                    exercise.is_locked = not previous_exercise_completed
+                    previous_exercise_completed = exercise.is_completed    
+                    
+            # 3) lesson completed if all exercises completed
+            lesson.is_completed = all(ex.is_completed for ex in lesson.exercises)
     return course
 
 @router.get("/lesson/{lesson_id}", response_model=schemas.Lesson)
