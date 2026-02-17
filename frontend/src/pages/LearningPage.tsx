@@ -17,6 +17,7 @@ export const LearningPage: React.FC = () => {
     const [output, setOutput] = useState<{ text: string, error: string, passed: boolean } | null>(null);
     const [isRunning, setIsRunning] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [canAdvance, setCanAdvance] = useState(false);
 
     // Fetch Course Structure
     useEffect(() => {
@@ -31,11 +32,14 @@ export const LearningPage: React.FC = () => {
     useEffect(() => {
         if (!course || !exerciseId) return;
 
+        const numericId = Number(exerciseId);
+        const isDifferentExercise = currentExercise?.id !== numericId;
+
         // Find exercise in course structure for details (prompt etc)
         let found = null;
         for (const mod of course.modules) {
             for (const les of mod.lessons) {
-                const ex = les.exercises.find((e: any) => e.id === Number(exerciseId));
+                const ex = les.exercises.find((e: any) => e.id === numericId);
                 if (ex) {
                     found = ex;
                     break;
@@ -45,16 +49,21 @@ export const LearningPage: React.FC = () => {
 
         if (found) {
             setCurrentExercise(found);
-            // Fetch progress (last code)
-            endpoints.progress.getExercise(found.id).then((res: any) => {
-                setCode(res.data.code || found.starter_code);
-            });
-            setOutput(null);
+
+            if (isDifferentExercise) {
+                // Fetch progress (last code)
+                endpoints.progress.getExercise(found.id).then((res: any) => {
+                    setCode(res.data.code || found.starter_code);
+                });
+                setOutput(null);
+                setCanAdvance(false);
+            }
         }
-    }, [course, exerciseId]);
+    }, [course, exerciseId, currentExercise?.id]);
 
     const handleRun = async () => {
         if (!currentExercise) return;
+        setCanAdvance(false);
         setIsRunning(true);
         try {
             const res = await endpoints.learn.run(code, currentExercise.id);
@@ -68,7 +77,9 @@ export const LearningPage: React.FC = () => {
                     code: code,
                     completed: true
                 });
-                // Update local state if needed
+                const updated = await endpoints.courses.get(courseSlug as string);
+                setCourse(updated.data);
+                setTimeout(() => setCanAdvance(true), 150);
             } else {
                 await endpoints.progress.update(currentExercise.id, {
                     status: "in_progress",
@@ -82,6 +93,7 @@ export const LearningPage: React.FC = () => {
     };
 
     const handleNext = () => {
+        if (!canAdvance) return;
         // Find next exercise ID
         // Simplified Logic: Just go to next in list
         if (!course) return;
@@ -131,7 +143,8 @@ export const LearningPage: React.FC = () => {
                                             key={ex.id}
                                             title={ex.title}
                                             active={Number(exerciseId) === ex.id}
-                                            completed={false /* TODO: inject completed map */}
+                                            completed={!!ex.is_completed}
+                                            locked={!!ex.is_locked}
                                             onClick={() => navigate(`/learn/${courseSlug}/${les.id}/${ex.id}`)}
                                         />
                                     ))}
@@ -223,6 +236,7 @@ export const LearningPage: React.FC = () => {
                                         <button
                                             onClick={handleRun}
                                             disabled={isRunning}
+                                            type="button"
                                             className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-6 rounded-lg flex items-center gap-2 transition-all"
                                         >
                                             {isRunning ? <Loader2 className="animate-spin" size={18} /> : <Play fill="currentColor" size={18} />}
@@ -231,7 +245,9 @@ export const LearningPage: React.FC = () => {
 
                                         {output?.passed && (
                                             <button
-                                                onClick={handleNext}
+                                                onClick={canAdvance ? handleNext : undefined}
+                                                disabled={!canAdvance}
+                                                type="button"
                                                 className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2"
                                             >
                                                 Next <ChevronRight size={18} />

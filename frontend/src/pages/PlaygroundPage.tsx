@@ -154,7 +154,7 @@ export const PlaygroundPage: React.FC = () => {
             <Topbar title="Python Playground" />
 
             <div className="flex-1 flex overflow-hidden">
-                {/* SIDEBAR (ChatGPT Style) */}
+                {/* SIDEBAR */}
                 <aside
                     className={`${isSidebarOpen ? 'w-72' : 'w-0'} bg-card border-r border-border flex flex-col transition-all duration-300 overflow-hidden relative group`}
                 >

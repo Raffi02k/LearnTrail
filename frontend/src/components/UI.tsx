@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, Lock, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '../lib/utils';
 
@@ -45,28 +45,34 @@ export const Topbar: React.FC<{ title?: string }> = ({ title }) => {
 export const SidebarItem: React.FC<{
     active?: boolean;
     completed?: boolean;
+    locked?: boolean;
     title: string;
     onClick?: () => void;
     icon?: React.ReactNode
-}> = ({ active, completed, title, onClick, icon }) => {
+}> = ({ active, completed, locked, title, onClick, icon }) => {
+    const isDisabled = !!locked && !active;
     return (
         <button
-            onClick={onClick}
+            onClick={isDisabled ? undefined : onClick}
+            disabled={isDisabled}
             className={cn(
                 "w-full text-left px-4 py-3 text-sm flex items-center gap-3 transition-colors border-l-2",
                 active
                     ? "bg-secondary border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
-                completed && !active && "text-muted-foreground/70"
+                completed && !active && "text-muted-foreground/70",
+                isDisabled && "opacity-60 cursor-not-allowed hover:bg-transparent hover:text-muted-foreground"
             )}
         >
             {icon ? icon : (
                 <div className={cn(
                     "w-4 h-4 rounded-full border flex items-center justify-center",
-                    completed ? "bg-primary border-primary" : "border-muted-foreground",
-                    active && !completed && "border-primary"
+                    completed ? "bg-emerald-500 border-emerald-500" : "border-muted-foreground",
+                    active && !completed && "border-primary",
+                    locked && !completed && "border-muted-foreground/60"
                 )}>
-                    {completed && <div className="w-2 h-2 bg-primary-foreground rounded-full" />}
+                    {completed && <Check size={12} className="text-white" />}
+                    {!completed && locked && <Lock size={12} className="text-muted-foreground" />}
                 </div>
             )}
             <span className="truncate">{title}</span>

@@ -76,12 +76,9 @@ def get_course_detail(slug: str, db: Session = Depends(get_db), current_user: mo
             # - first exercise unlocked
             # - exercise N locked if exercise N-1 not completed
             previous_exercise_completed = True # so first becomes unlocked
-            for i, exercise in enumerate(lesson.exercises):
-                if i == 0:
-                    exercise.is_locked = False
-                else:
-                    exercise.is_locked = not previous_exercise_completed
-                    previous_exercise_completed = exercise.is_completed    
+            for exercise in lesson.exercises:
+                exercise.is_locked = not previous_exercise_completed
+                previous_exercise_completed = exercise.is_completed
                     
             # 3) lesson completed if all exercises completed
             lesson.is_completed = all(ex.is_completed for ex in lesson.exercises)
