@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Topbar } from '../components/UI';
+import { useAuth } from '../context/AuthContext';
 import { endpoints } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { Play, TrendingUp, Award } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
+    const { user } = useAuth();
     const [courses, setCourses] = useState<any[]>([]);
     const [, setProgress] = useState<any[]>([]);
 
@@ -31,14 +33,19 @@ export const DashboardPage: React.FC = () => {
                             </p>
                         </div>
                         <div className="mt-8 flex flex-wrap gap-4">
-                            <Link to="/learn/learn-python-3/1/1" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold md:text-lg hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95">
-                                <Play fill="currentColor" size={18} />
-                                Resume Python 3
+                            <Link to="/devops-study" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold md:text-lg hover:shadow-lg hover:shadow-emerald-600/20 transition-all active:scale-95">
+                                <BookIcon />
+                                Läs Studieguide & Träna
                             </Link>
 
-                            <Link to="/playground" className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-6 py-3 rounded-xl font-bold md:text-lg border border-border hover:bg-secondary/80 transition-all active:scale-95">
-                                <CodeIcon />
-                                Freestyle Playground
+                            <Link to="/devops-quiz" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold md:text-lg hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 animate-pulse">
+                                <Award size={20} />
+                                Starta DevOps Quiz (20 Frågor)
+                            </Link>
+
+                            <Link to="/learn/learn-python-3/1/1" className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-3 rounded-xl font-bold border border-border hover:bg-secondary/80 transition-all active:scale-95">
+                                <Play fill="currentColor" size={18} />
+                                Resume Python 3
                             </Link>
                         </div>
                     </div>
@@ -50,7 +57,7 @@ export const DashboardPage: React.FC = () => {
                                 <Award size={24} />
                             </div>
                             <div>
-                                <div className="text-2xl font-bold">120</div>
+                                <div className="text-2xl font-bold">{user?.xp_total ?? 0}</div>
                                 <div className="text-sm text-muted-foreground">Total XP</div>
                             </div>
                         </div>

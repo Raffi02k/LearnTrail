@@ -13,6 +13,7 @@ class User(Base):
     hashed_password = Column(String, nullable=True)
     auth_method = Column(String, default="local") # local, oidc
     roles = Column(JSON, default=["user"]) # JSON list of roles
+    quiz_xp = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     exercise_progress = relationship("UserExerciseProgress", back_populates="user")

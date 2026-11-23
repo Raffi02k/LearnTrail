@@ -17,6 +17,8 @@ interface AuthContextType {
     loginLocal: (username: string, password: string) => Promise<void>;
     loginOidc: () => void; // Triggered via MSAL hook usage usually, but we can wrap
     logout: () => void;
+    addXp: (amount: number) => Promise<number>;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -90,6 +92,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const refreshUser = async () => {
+        try {
+            const res = await endpoints.auth.me();
+            setUser(res.data);
+        } catch (e) {
+            console.error("Failed to refresh user", e);
+        }
+    };
+
+    const addXp = async (amount: number): Promise<number> => {
+        if (amount <= 0) return user?.xp_total || 0;
+        try {
+            const res = await endpoints.auth.addXp(amount);
+            const newTotal = res.data.new_total_xp;
+            setUser(prev => prev ? { ...prev, xp_total: newTotal } : prev);
+            return newTotal;
+        } catch (e) {
+            console.warn("Backend addXp failed, updating local state", e);
+            const newTotal = (user?.xp_total || 0) + amount;
+            setUser(prev => prev ? { ...prev, xp_total: newTotal } : prev);
+            return newTotal;
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -97,7 +123,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isLoading,
             loginLocal,
             loginOidc: () => instance.loginPopup(loginRequest),
-            logout
+            logout,
+            addXp,
+            refreshUser
         }}>
             {children}
         </AuthContext.Provider>

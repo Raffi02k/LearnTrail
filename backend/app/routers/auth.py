@@ -30,8 +30,20 @@ async def read_users_me(current_user: models.User = Depends(deps.get_current_act
     xp_sum = sum([x[0] for x in total_xp]) if total_xp else 0
     
     response = schemas.UserResponse.from_orm(current_user)
-    response.xp_total = xp_sum
+    response.xp_total = xp_sum + (current_user.quiz_xp or 0)
     return response
+
+@router.post("/add-xp")
+def add_user_xp(payload: schemas.AddXpRequest, current_user: models.User = Depends(deps.get_current_active_user), db: Session = Depends(get_db)):
+    if payload.xp > 0:
+        current_user.quiz_xp = (current_user.quiz_xp or 0) + payload.xp
+        db.commit()
+        db.refresh(current_user)
+    
+    total_xp = db.query(models.UserExerciseProgress.earned_xp).filter(models.UserExerciseProgress.user_id == current_user.id).all()
+    xp_sum = sum([x[0] for x in total_xp]) if total_xp else 0
+    new_total = xp_sum + (current_user.quiz_xp or 0)
+    return {"status": "success", "added_xp": payload.xp, "new_total_xp": new_total}
 
 # Optional: Register endpoint for local dev
 @router.post("/register", response_model=schemas.UserResponse)

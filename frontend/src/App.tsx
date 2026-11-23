@@ -8,6 +8,8 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LearningPage } from './pages/LearningPage';
 import { PlaygroundPage } from './pages/PlaygroundPage';
+import { DevOpsQuizPage } from './pages/DevOpsQuizPage';
+import { DevOpsStudyPage } from './pages/DevOpsStudyPage';
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -40,6 +42,18 @@ function App() {
                 <PlaygroundPage />
               </ProtectedRoute>
             } />
+            <Route path="/devops-quiz" element={
+              <ProtectedRoute>
+                <DevOpsQuizPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/quiz" element={<Navigate to="/devops-quiz" />} />
+            <Route path="/devops-study" element={
+              <ProtectedRoute>
+                <DevOpsStudyPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/study" element={<Navigate to="/devops-study" />} />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </Router>

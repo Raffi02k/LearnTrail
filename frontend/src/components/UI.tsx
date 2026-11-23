@@ -9,16 +9,34 @@ export const Topbar: React.FC<{ title?: string }> = ({ title }) => {
 
     return (
         <div className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
                 <Link to="/dashboard" className="font-bold text-xl tracking-tight text-primary flex items-center gap-2">
-                    <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground">LT</div>
+                    <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-black">LT</div>
                     LearnTrail
                 </Link>
+
+                <nav className="hidden md:flex items-center gap-1">
+                    <Link to="/dashboard" className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                        Dashboard
+                    </Link>
+                    <Link to="/devops-study" className="px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
+                        <span className="text-emerald-400">📖</span>
+                        Studieguide
+                    </Link>
+                    <Link to="/devops-quiz" className="px-3 py-1.5 rounded-lg text-sm font-bold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        DevOps Quiz
+                    </Link>
+                    <Link to="/playground" className="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                        Playground
+                    </Link>
+                </nav>
+
                 {title && (
-                    <>
+                    <div className="hidden lg:flex items-center gap-2">
                         <span className="text-muted-foreground">/</span>
-                        <span className="font-medium">{title}</span>
-                    </>
+                        <span className="font-medium text-sm">{title}</span>
+                    </div>
                 )}
             </div>
 

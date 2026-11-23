@@ -31,6 +31,7 @@ export const endpoints = {
     auth: {
         login: (data: FormData) => api.post("/auth/token", data),
         me: () => api.get("/auth/me"),
+        addXp: (xp: number) => api.post("/auth/add-xp", { xp }),
     },
     courses: {
         list: () => api.get("/courses"),

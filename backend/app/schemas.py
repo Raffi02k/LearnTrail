@@ -17,12 +17,16 @@ class UserCreate(BaseModel):
     name: str | None = None
     password: str
 
+class AddXpRequest(BaseModel):
+    xp: int
+
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
     name: str | None
     auth_method: str
     roles: List[str]
+    quiz_xp: Optional[int] = 0
     xp_total: Optional[int] = 0
 
     class Config:
